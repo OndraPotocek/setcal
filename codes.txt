@@ -1,0 +1,3 @@
+lines[0]; lines[1]; lines[2];
+    getSet(set, lines[0]);
+    getRelation(relation, lines[1]);
