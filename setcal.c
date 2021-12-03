@@ -161,9 +161,9 @@ Relation * getRelation(Relation * relation, int line){
 int empty(Universum * universum, Set * set, Relation * relation, int *lines){
     Set * s1 = getSet(set, lines[0]);
     if (s1 == NULL) return ERROR_EXPECTED_SET;
-    if (s1->size<=0){ printf("empty"); }
+    if (s1->size<=0){ printf("empty"); return 0; }
     else printf("not empty"); 
-    return 0;
+    return 1;
 };
 
 int card(Universum * universum, Set * set, Relation * relation, int *lines){
@@ -174,54 +174,154 @@ int card(Universum * universum, Set * set, Relation * relation, int *lines){
 };
 
 int complement(Universum * universum, Set * set, Relation * relation, int *lines){
+    Set * s1 = getSet(set, lines[0]);
+    if(s1 == NULL) return ERROR_EXPECTED_SET;
+    char resItems[] = s1->items;
+    bool new = true; int n = 0;
+    for (int i = 1; i>universum->size+1; i++){
+        for (int j = 0; j>s1->size; i++){
+            if(strcmp(universum->names[i], s1->items[j]) == 0){
+                new = false;
+                break;
+            }
+        }
+        if (new){
+            resItems[s1->size+i] = universum->names[i];
+            n++;
+        } 
+    }
+    printf("S ");
+    for (int i = 0; i<s1->size+n; i++){
+        printf("%s ", resItems[i]);
+    }
     return 0;
 };
 
 int set_union(Universum * universum, Set * setA, Set * setB, int *lines){
     Set * s1 = getSet(setA, lines[0]);
     Set * s2 = getSet(setB, lines[1]);
+    if (s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
     bool new = true;
     int n = 0;
-    int ret[s1->size + s2->size];
+    char ret[s1->size + s2->size];
     if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
     for (int i = 0; i<s1->size; i++){
-        for (int j = 0; j<s2->size; j++){
+        for (int j = i+1; j<s2->size; j++){
             if (s1->items[i] == s2->items[j]) new = false;
         }
         if(new) ret[n] = s1->items[i]; n++;
     }
     new = true;
     for (int i = 0; i<s2->size; i++){
-        for (int j = 0; j<s1->size; j++){
+        for (int j = i+1; j<s1->size; j++){
             if(s2->items[i] == s1->items[j]) new = false;
         }
         if(new) ret[n] = s2->items[i]; n++; 
     }
-    printf("Union: ");
+    printf("S ");
     for (int i = 0; i<n-1;i++){
-        printf("%d", ret[i]);
+        printf("%s ", ret[i]);
     }
     return 0;
 };
 
-int intersect(Universum * universum, Set * set, Set * setB, int *lines){
+int intersect(Universum * universum, Set * setA, Set * setB, int *lines){
+    Set * s1 = getSet(setA, lines[0]);
+    Set * s2 = getSet(setB, lines[1]);
+    if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
+    char res[] = {0}; int n = 0;
+    for (int i = 0; i < s1->size; i++){
+        for (int j = 0; j < s2->size; j++){
+            if(s1->items[i] == s2->items[j]){
+                res[i] = s1->items[i];
+                n++;
+            }
+        }
+    }
+    printf("S ");
+    for (int i = 0; i < n; i++){
+        printf("%s ", res[i]);
+    }
     return 0;
 };
 
 int minus(Universum * universum, Set * setA, Set * setB, int *lines){
-    return 0;
+    Set * s1 = getSet(setA, lines[0]);
+    Set * s2 = getSet(setB, lines[1]);
+    if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
+    char resItems[] = s1->items;
+    bool new = true; int n = 0;
+    for (int i = 1; i>s2->size+1; i++){
+        for (int j = 0; j>s1->size; i++){
+            if(strcmp(s2->items[i], s1->items[j]) == 0){
+                new = false;
+                break;
+            }
+        }
+        if (new){
+            resItems[s1->size+i] = s2->items[i];
+            n++;
+        } 
+    }
+    printf("S ");
+    for (int i = 0; i<s1->size+n; i++){
+        printf("%s ", resItems[i]);
+    }
+    return 0;   
 };
 
 int subseteq(Universum * universum, Set * setA, Set * setB, int *lines){
-    return 0;
+    Set * s1 = getSet(setA, lines[0]);
+    Set * s2 = getSet(setB, lines[1]);
+    if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
+    char res[] = {0}; bool subel = false;
+    for (int i = 0; i < s1->size; i++){
+        for (int j = 0; j < s2->size; i++){
+           if (strcmp(s1->items[i],s2->items[j]) == 0){
+               subel = true;
+           } 
+        }
+        if(!subel) break;
+        subel = false;
+    }
+    if (subel) return 0;
+    return 1;
 };
 
 int subset(Universum * universum, Set * setA, Set * setB, int *lines){
-    return 0;
+    Set * s1 = getSet(setA, lines[0]);
+    Set * s2 = getSet(setB, lines[1]);
+    if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
+    char res[] = {0}; bool subel = false;
+    for (int i = 0; i < s1->size; i++){
+        for (int j = 0; j < s2->size; i++){
+           if (strcmp(s1->items[i],s2->items[j]) == 0){
+               subel = true;
+           } 
+        }
+        if(!subel) break;
+        subel = false;
+    }
+    if (subel && s2->size > s1->size) return 0;
+    return 1;
 };
 
 int equals(Universum * universum, Set * setA, Set * setB, int *lines){
-    return 0;
+    Set * s1 = getSet(setA, lines[0]);
+    Set * s2 = getSet(setB, lines[1]);
+    if(s1 == NULL || s2 == NULL) return ERROR_EXPECTED_SET;
+    char res[] = {0}; bool subel = false;
+    for (int i = 0; i < s1->size; i++){
+        for (int j = 0; j < s2->size; i++){
+           if (strcmp(s1->items[i],s2->items[j]) == 0){
+               subel = true;
+           } 
+        }
+        if(!subel) break;
+        subel = false;
+    }
+    if (subel && s1->size == s2->size) return 0;
+    return 1;
 };
 
 
